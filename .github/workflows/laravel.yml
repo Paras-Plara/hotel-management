@@ -35,11 +35,13 @@ jobs:
       - name: Run tests
         run: php artisan test
 
-  deploy:
+   deploy:
     needs: laravel-tests
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to Railway
-        run: curl -sSL "https://railway.app/pipeline/deploy/${{ secrets.RAILWAY_PROJECT_ID }}?service=${{ secrets.RAILWAY_SERVICE_NAME }}" -X POST -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}"
+        run: |
+          curl -sSL "https://railway.app/pipeline/deploy/${{ secrets.RAILWAY_PROJECT_ID }}?service=${{ secrets.RAILWAY_SERVICE_NAME }}" -X POST \
+          -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}"
 
