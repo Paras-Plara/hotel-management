@@ -19,12 +19,13 @@ class BookingService {
         $available = Room::where('is_booked', false)->get();
         $userRooms = Booking::where('user_id', $userId)->with('room')->get()->pluck('room');
 
-        $group = null;
-
         if ($userRooms->isNotEmpty()) {
-            $group = $this->closestToExisting($available, $userRooms, $n);
-            if ($group->count() < $n) {
-                $group = $this->minTravelGroup($available, $n);
+            $group = $this->findSameFloor($available, $n);
+            if (!$group || $group->count() < $n) {
+                $group = $this->closestToExisting($available, $userRooms, $n);
+                if ($group->count() < $n) {
+                    $group = $this->minTravelGroup($available, $n);
+                }
             }
         } else {
             $group = $this->findSameFloor($available, $n);
@@ -40,6 +41,7 @@ class BookingService {
 
         return $group;
     }
+
 
 
     protected function findSameFloor(Collection $rooms,int $n) {

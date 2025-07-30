@@ -10,11 +10,17 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller {
 
+    protected $bookingService;
 
-    public function store(Request $req, BookingService $svc) {
+    public function __construct(BookingService $bookingService)
+    {
+        $this->bookingService = $bookingService;
+    }
+
+    public function store(Request $req) {
         $req->validate(['rooms'=>'required|integer|min:1|max:5']);
         try {
-            $group = $svc->bookRooms(auth()->id(), $req->rooms);
+            $group = $this->bookingService->bookRooms(auth()->id(), $req->rooms);
             return back()->with('success', 'Booked: '.\implode(',', $group->pluck('room_number')->toArray()));
         } catch (\Exception $e) {
             return back()->withErrors(['rooms' => $e->getMessage()]);

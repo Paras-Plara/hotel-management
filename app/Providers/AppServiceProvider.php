@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\BookingService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,9 +13,10 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
+    
     public function register()
     {
-        //
+        $this->app->bind(BookingService::class);
     }
 
     /**
