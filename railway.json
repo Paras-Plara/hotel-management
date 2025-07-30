@@ -1,0 +1,8 @@
+{
+  "build": {
+    "builder": "heroku/php"
+  },
+  "deploy": {
+    "startCommand": "composer install --optimize-autoloader && php artisan config:clear && php artisan cache:clear && php artisan config:cache && php artisan migrate --force && vendor/bin/heroku-php-apache2 public/"
+  }
+}
