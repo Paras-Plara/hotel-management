@@ -52,11 +52,11 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Railway Auth
-        run: echo "${{ secrets.RAILWAY_TOKEN }}" | railway login --ci
-
       - name: Deploy to Railway
-        run: railway up --service "${{ secrets.RAILWAY_SERVICE_NAME }}" --project "${{ secrets.RAILWAY_PROJECT_ID }}"
         env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_TOKEN:   ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway up \
+            --project ${{ secrets.RAILWAY_PROJECT_ID }} \
+            --service ${{ secrets.RAILWAY_SERVICE_NAME }}
 
