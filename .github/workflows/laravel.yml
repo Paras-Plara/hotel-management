@@ -10,65 +10,29 @@ jobs:
   laravel-tests:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup PHP 8.1
-        uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: 8.1
           extensions: mbstring, bcmath, pdo, mysql, xml
-
-      - name: Cache Composer dependencies
-        uses: actions/cache@v3
+      - uses: actions/cache@v3
         with:
           path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Install PHP dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
-
-      - name: Set folder permissions
-        run: chmod -R 777 storage bootstrap/cache
-
-      - name: Copy .env and generate key
-        run: |
+      - run: composer install --prefer-dist --no-progress --no-suggest
+      - run: chmod -R 777 storage bootstrap/cache
+      - run: |
           cp .env.example .env
           php artisan key:generate
-
-      - name: Run tests
-        run: php artisan test --env=testing || true
+      - run: php artisan test --env=testing || true
 
   deploy:
     needs: laravel-tests
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
-      # **Required:** your Railway project token
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Link to Railway Project
-        # associates this directory with your Railway project
-        run: railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Link to Railway Service
-        # locks this directory to the specific service (avoids multiple-service prompt)
-        run: railway service ${{ secrets.RAILWAY_SERVICE_NAME }}
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Deploy to Railway
-        # deploys **only** that one linked service (no more “multiple services found”)
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }} --ci
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      - uses: actions/checkout@v3
+      - run: npm install -g @railway/cli
+      - run: railway up
