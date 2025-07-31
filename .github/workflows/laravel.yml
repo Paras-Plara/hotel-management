@@ -10,29 +10,52 @@ jobs:
   laravel-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: shivammathur/setup-php@v2
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          php-version: 8.1
+          php-version: '8.1'
           extensions: mbstring, bcmath, pdo, mysql, xml
-      - uses: actions/cache@v3
+
+      - name: Cache Composer
+        uses: actions/cache@v3
         with:
           path: vendor
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-      - run: composer install --prefer-dist --no-progress --no-suggest
-      - run: chmod -R 777 storage bootstrap/cache
-      - run: |
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Permissions & Key
+        run: |
+          chmod -R 777 storage bootstrap/cache
           cp .env.example .env
           php artisan key:generate
-      - run: php artisan test --env=testing || true
+
+      - name: Run tests
+        run: php artisan test --env=testing || true
 
   deploy:
     needs: laravel-tests
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      # your Railway Project-level token
+      RAILWAY_TOKEN:    ${{ secrets.RAILWAY_TOKEN }}
+      # the UUID of your Railway project (from Dashboard → Settings → General)
+      RAILWAY_PROJECT_ID:      ${{ secrets.RAILWAY_PROJECT_ID }}
+      # the UUID of your Railway environment (e.g. production)
+      RAILWAY_ENVIRONMENT_ID:  ${{ secrets.RAILWAY_ENVIRONMENT_ID }}
+      # the UUID of the *service* you want to deploy (NOT its name)
+      RAILWAY_SERVICE_ID:      ${{ secrets.RAILWAY_SERVICE_ID }}
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install -g @railway/cli
-      - run: railway up
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up
