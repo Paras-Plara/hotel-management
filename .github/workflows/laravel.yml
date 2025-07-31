@@ -52,14 +52,11 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
+      - name: Railway Auth
+        run: echo "${{ secrets.RAILWAY_TOKEN }}" | railway login --ci
+
       - name: Deploy to Railway
-        run: |
-          # The Railway CLI will automatically pick up the RAILWAY_TOKEN,
-          # RAILWAY_SERVICE_NAME, and RAILWAY_PROJECT_ID from environment variables.
-          # You no longer need to pass them as command-line arguments.
-          railway up
+        run: railway up --service "${{ secrets.RAILWAY_SERVICE_NAME }}" --project "${{ secrets.RAILWAY_PROJECT_ID }}"
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_SERVICE_NAME: ${{ secrets.RAILWAY_SERVICE_NAME }} # Pass service as an environment variable
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}   # Pass project as an environment variable
 
