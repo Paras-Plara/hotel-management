@@ -52,21 +52,14 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Debug Railway Variables (Non-sensitive)
-        run: |
-          echo "Railway Service Name: $RAILWAY_SERVICE_NAME"
-          echo "Railway Project ID: $RAILWAY_PROJECT_ID"
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} # Still required for the actual deploy step
-          RAILWAY_SERVICE_NAME: ${{ secrets.RAILWAY_SERVICE_NAME }}
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-          # Note: If these are in repository variables (not secrets), you'd use ${{ vars.VARIABLE_NAME }}
-
       - name: Deploy to Railway
         run: |
-          railway up --service ${{ secrets.RAILWAY_SERVICE_NAME }} --project ${{ secrets.RAILWAY_PROJECT_ID }}
+          # The Railway CLI will automatically pick up the RAILWAY_TOKEN,
+          # RAILWAY_SERVICE_NAME, and RAILWAY_PROJECT_ID from environment variables.
+          # You no longer need to pass them as command-line arguments.
+          railway up
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          RAILWAY_SERVICE_NAME: ${{ secrets.RAILWAY_SERVICE_NAME }} # Ensure these are also here for railway up
-          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+          RAILWAY_SERVICE_NAME: ${{ secrets.RAILWAY_SERVICE_NAME }} # Pass service as an environment variable
+          RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}   # Pass project as an environment variable
 
